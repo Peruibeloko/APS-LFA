@@ -5,7 +5,7 @@ public class APSMain {
 
     public static void main(String[] args) {
 
-        String filename = null;
+        String filename;
         Output gui = new Output();
         FileParser fParser;
 

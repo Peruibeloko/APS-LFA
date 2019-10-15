@@ -19,4 +19,9 @@ public class KeyValue {
     public double getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return key + " = " + value;
+    }
 }
