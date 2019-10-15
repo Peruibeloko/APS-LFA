@@ -19,9 +19,17 @@ public class KeyValue {
     public double getValue() {
         return value;
     }
+    public void setValue(double value) {
+        this.value = value;
+    }
 
     @Override
     public String toString() {
-        return key + " = " + value;
+
+        if(value % 1 == 0){
+            return key + " = " + new Double(value).intValue();
+        } else {
+            return key + " = " + value;
+        }
     }
 }

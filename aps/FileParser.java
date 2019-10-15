@@ -84,6 +84,8 @@ public class FileParser {
                 gui.addText("[ ]");
                 currentLine.append(' ');
 
+            } else if (ch == 59) { // ;
+
             } else {
 
                 currentLine.append((char) ch);
@@ -95,12 +97,11 @@ public class FileParser {
     boolean validateChar(int ch) {
 
         if (
-                (ch == 10 || ch == 13) || // CR LF
-                        (ch == 42 || ch == 43 || (ch >= 45 && ch <= 47) || // Caracteres
-                                ch == 59 || ch == 61 || ch == 95) ||       // Permitidos
-                        (ch >= 48 && ch <= 57) || // Números
-                        (ch >= 65 && ch <= 90) || // Letras maiúsculas
-                        (ch >= 97 && ch <= 122) // Letras minúsculas
+                (ch == 10 || ch == 13 || ch == 32) || // CR LF Space
+                (ch == 42 || ch == 43 || (ch >= 45 && ch <= 47) || // Caracteres
+                 ch == 59 || ch == 61 || ch == 95) ||
+                (ch >= 48 && ch <= 57) || // Números
+                (ch >= 97 && ch <= 122) // Letras minúsculas
         ) {
             return true;
         } else {
