@@ -27,9 +27,9 @@ public class KeyValue {
     public String toString() {
 
         if(value % 1 == 0){
-            return key + " = " + new Double(value).intValue();
+            return key + ": " + new Double(value).intValue();
         } else {
-            return key + " = " + value;
+            return key + ": " + value;
         }
     }
 }
