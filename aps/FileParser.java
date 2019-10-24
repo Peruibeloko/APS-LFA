@@ -1,7 +1,11 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Set;
+import java.util.Iterator;
 
 public class FileParser {
 
@@ -11,7 +15,10 @@ public class FileParser {
     private String filename, name;
     private double value;
     private Output gui;
-    private ArrayList<KeyValue> varList = new ArrayList<>();
+    private Map<String, Double> varList = new HashMap<>();
+    private Entry<String, Double> en;
+    private Iterator it;
+    private boolean noError = true;
 
     public FileParser(Output gui, String filename) {
 
@@ -28,9 +35,28 @@ public class FileParser {
             input = new BufferedReader(new FileReader(filename));
             gui.addText("\n\n----- BEGIN FILE READ -----\n\n");
 
-            while (input.ready()) {
+            while (input.ready() && noError) {
 
-                parseCharacter(input.read());
+                int ch = input.read();
+
+                if (ch == 13) { // Carriage Return
+
+                    gui.addText("[CR]");
+
+                } else if (ch == 10) { // Line Feed
+
+                    gui.addText("[LF]\n");
+
+                } else if (ch == 32) { // Space
+
+                    gui.addText("[ ]");
+
+                } else {
+
+                    gui.addText((char) ch);
+                    parseCharacter(ch);
+                }
+
                 i++;
             }
 
@@ -42,43 +68,59 @@ public class FileParser {
         }
 
         gui.addText("Characters read: " + i + "\n");
-        gui.addText("Variables: \n\n");
+        gui.addText("Variables: " + varList.size() + "\n\n");
 
-        for (int j = 0; j < varList.size(); j++) {
-            gui.addText(varList.get(j).toString() + "\n");
+        it = varList.entrySet().iterator();
+
+        while (it.hasNext()) {
+
+            en = (Entry) it.next();
+            gui.addText(en.getKey() + ": " + en.getValue() + "\n");
         }
     }
 
     void parseCharacter(int ch) {
 
         currentWord.append((char) ch);
-        String newState = st.transition("" + (char) ch);
+        int opCode = st.transition("" + (char) ch);
 
-        if (newState.equals("q2")) {
+        if (opCode == 1) {
 
-            name = currentWord.toString().trim();
+            name = currentWord.toString().replace('=', ' ').trim();
+            currentWord = new StringBuilder();
 
-        } else if (newState.equals("f1")) {
+        } else if (opCode == 2) {
 
-            value = Double.parseDouble(currentWord.toString().trim());
+            value = Double.parseDouble(currentWord.toString().replace(';', ' ').trim());
+            varList.put(name, value);
 
-        }
+            currentWord = new StringBuilder();
 
-        if (ch == 13) { // Carriage Return
+        } else if (opCode == 3) {
 
-            gui.addText("[CR]");
+            ArrayList<String> values = new ArrayList<>();
+            values.addAll(Arrays.asList(currentWord.toString().replace(';', ' ').trim().split("[+\\-/*]")));
 
-        } else if (ch == 10) { // Line Feed
+            ArrayList<String> ops = new ArrayList<>();
+            ops.addAll(Arrays.asList(currentWord.toString().replace(';', ' ').trim().split("\\w")));
 
-            gui.addText("[LF]\n");
+            /*
+            for (int i = 0; i < ops.size(); i++) {
 
-        } else if (ch == 32) { // Space
+                if (ops.get(i).charAt(0) == '*'){
 
-            gui.addText("[ ]");
 
-        } else {
+                }
+            }
+            */
+            currentWord = new StringBuilder();
 
-            gui.addText((char) ch);
+        } else if (opCode == -1) {
+
+            noError = false;
+            gui.addText("\nCurrent Capture: " + currentWord.toString() + '\n');
+            gui.addText("INVALID ATTRIBUTION\n\n");
+            currentWord = new StringBuilder();
         }
     }
 }

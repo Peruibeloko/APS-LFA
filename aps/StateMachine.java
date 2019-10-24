@@ -11,115 +11,81 @@ public class StateMachine {
         this.activeState = state;
     }
 
-    public String transition(String input) {
+    public int transition(String input) {
+
+        System.out.printf("δ(%s, %s)\n", activeState, input);
 
         if (activeState.equals("q0")) {
 
             if (input.matches(letMin)) {
-
-                return "q1";
+                setActiveState("q1");
+                return 0;
             }
 
         } else if (activeState.equals("q1")) {
 
             if (input.matches(id)) {
-
-                return "q1";
-
-            } else if (input.matches(" ")){
-
-                return "q2";
+                setActiveState("q1");
+                return 0;
+            } else if (input.matches("=")) {
+                setActiveState("q2");
+                return 1;
             }
 
         } else if (activeState.equals("q2")) {
 
-            if (input.matches("=")) {
-
-                return "q3";
+            if (input.matches(letMin)) {
+                setActiveState("q3");
+                return 0;
+            } else if (input.matches(num)) {
+                setActiveState("q4");
+                return 0;
             }
 
         } else if (activeState.equals("q3")) {
 
-            if (input.matches(" ")) {
-
-                return "q4";
+            if (input.matches(id)) {
+                setActiveState("q3");
+                return 0;
+            } else if (input.matches(";")) {
+                setActiveState("q0");
+                return 3;
+            } else if (input.matches(op_arit)) {
+                setActiveState("q2");
+                return 0;
             }
 
         } else if (activeState.equals("q4")) {
 
-            if (input.matches(letMin)) {
-
-                return "q6";
-
-            } else if (input.matches(num)){
-
-                return "q5";
+            if (input.matches(num)) {
+                setActiveState("q4");
+                return 0;
+            } else if (input.matches(";")) {
+                setActiveState("q0");
+                return 2;
+            } else if (input.matches("\\.")) {
+                setActiveState("q5");
+                return 0;
+            } else if (input.matches(op_arit)) {
+                setActiveState("q2");
+                return 0;
             }
 
         } else if (activeState.equals("q5")) {
 
             if (input.matches(num)) {
-
-                return "q5";
-
-            } else if (input.matches("\\.")){
-
-                return "q8";
-
-            } else if (input.matches(op_arit)){
-
-                return "q7";
-
+                setActiveState("q5");
+                return 0;
             } else if (input.matches(";")) {
-
-                return "f1";
-            }
-
-        } else if (activeState.equals("q6")) {
-
-            if (input.matches(id)) {
-
-                return "q6";
-
-            } else if (input.matches(op_arit)){
-
-                return "q7";
-
-            } else if (input.matches(op_arit)){
-
-                return "q7";
-
-            } else if (input.matches(";")) {
-
-                return "f1";
-            }
-
-        } else if (activeState.equals("q7")) {
-
-            if (input.matches(" ")){
-
-                return "q4";
-            }
-
-        } else if (activeState.equals("q8")) {
-
-            if (input.matches(num)){
-
-                return "q9";
-            }
-
-        } else if (activeState.equals("q9")) {
-
-            if (input.matches(";")){
-
-                return "f1";
-
+                setActiveState("q0");
+                return 2;
             } else if (input.matches(op_arit)) {
-
-                return "q7";
+                setActiveState("q2");
+                return 0;
             }
+
         }
 
-        return "INVALID";
+        return -1;
     }
 }
