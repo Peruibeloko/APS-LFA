@@ -1,91 +1,61 @@
 public class StateMachine {
 
-    private String activeState = "q0";
+    private int activeState = 0;
+    private TransitionTable states;
+    // prevState, input, newState
+
     private String letMin = "[a-z]";
     private String id = "[a-z_0-9]";
     private String num = "[0-9]";
     private String op_arit = "[+\\-/*]";
+    private String op_atrib = "=";
+    private String pv = ";";
+    private String dot = "\\.";
 
-    public void setActiveState(String state) {
+    public StateMachine() {
 
-        this.activeState = state;
+        states = new TransitionTable();
+
+        states.createTransition(0, letMin, 1);
+        states.createTransition(1, id, 1);
+        states.createTransition(1, op_atrib, 2);
+        states.createTransition(2, num, 3);
+        states.createTransition(2, letMin, 4);
+        states.createTransition(3, num, 3);
+        states.createTransition(3, pv, 5);
+        states.createTransition(3, dot, 6);
+        states.createTransition(3, op_arit, 7);
+        states.createTransition(4, id, 4);
+        states.createTransition(4, op_arit, 7);
+        states.createTransition(4, pv, 10);
+        states.createTransition(6, num, 6);
+        states.createTransition(6, op_arit, 7);
+        states.createTransition(7, num, 9);
+        states.createTransition(7, letMin, 4);
+        states.createTransition(8, num, 8);
+        states.createTransition(8, op_arit, 7);
+        states.createTransition(8, pv, 10);
+        states.createTransition(9, num, 9);
+        states.createTransition(9, dot, 8);
+        states.createTransition(9, op_arit, 7);
+        states.createTransition(9, pv, 10);
     }
 
     public int transition(String input) {
 
-        System.out.printf("δ(%s, %s)\n", activeState, input);
+        System.out.printf("δ(%d, %s)\n", activeState, input);
+        activeState = states.change(activeState, input);
 
-        if (activeState.equals("q0")) {
+        try {
 
-            if (input.matches(letMin)) {
-                setActiveState("q1");
-                return 0;
-            }
+            activeState += 0;
+            return activeState;
 
-        } else if (activeState.equals("q1")) {
+        } catch (NullPointerException e){
 
-            if (input.matches(id)) {
-                setActiveState("q1");
-                return 0;
-            } else if (input.matches("=")) {
-                setActiveState("q2");
-                return 1;
-            }
-
-        } else if (activeState.equals("q2")) {
-
-            if (input.matches(letMin)) {
-                setActiveState("q3");
-                return 0;
-            } else if (input.matches(num)) {
-                setActiveState("q4");
-                return 0;
-            }
-
-        } else if (activeState.equals("q3")) {
-
-            if (input.matches(id)) {
-                setActiveState("q3");
-                return 0;
-            } else if (input.matches(";")) {
-                setActiveState("q0");
-                return 3;
-            } else if (input.matches(op_arit)) {
-                setActiveState("q2");
-                return 0;
-            }
-
-        } else if (activeState.equals("q4")) {
-
-            if (input.matches(num)) {
-                setActiveState("q4");
-                return 0;
-            } else if (input.matches(";")) {
-                setActiveState("q0");
-                return 2;
-            } else if (input.matches("\\.")) {
-                setActiveState("q5");
-                return 0;
-            } else if (input.matches(op_arit)) {
-                setActiveState("q2");
-                return 0;
-            }
-
-        } else if (activeState.equals("q5")) {
-
-            if (input.matches(num)) {
-                setActiveState("q5");
-                return 0;
-            } else if (input.matches(";")) {
-                setActiveState("q0");
-                return 2;
-            } else if (input.matches(op_arit)) {
-                setActiveState("q2");
-                return 0;
-            }
-
+            activeState = -1;
+            return activeState;
         }
 
-        return -1;
     }
 }

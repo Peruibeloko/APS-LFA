@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.Map;
-import java.util.Set;
 import java.util.Iterator;
 
 public class FileParser {
@@ -89,14 +88,14 @@ public class FileParser {
             name = currentWord.toString().replace('=', ' ').trim();
             currentWord = new StringBuilder();
 
-        } else if (opCode == 2) {
+        } else if (opCode == 5) {
 
             value = Double.parseDouble(currentWord.toString().replace(';', ' ').trim());
             varList.put(name, value);
 
             currentWord = new StringBuilder();
 
-        } else if (opCode == 3) {
+        } else if (opCode == 10) {
 
             ArrayList<String> values = new ArrayList<>();
             values.addAll(Arrays.asList(currentWord.toString().replace(';', ' ').trim().split("[+\\-/*]")));
