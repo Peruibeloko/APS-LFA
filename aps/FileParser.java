@@ -10,14 +10,21 @@ public class FileParser {
 
     private StringBuilder currentWord = new StringBuilder();
     private StateMachine st = new StateMachine();
+
+    private String filename;
     private BufferedReader input = null;
-    private String filename, name;
-    private double value;
     private Output gui;
+
+    Stack<String> values = new Stack<>();
+    Stack<String> ops = new Stack<>();
+    String currVar;
+
     private Map<String, Double> varList = new HashMap<>();
     private Entry<String, Double> en;
     private Iterator it;
+
     private boolean noError = true;
+    private boolean creatingVars = true;
 
     public FileParser(Output gui, String filename) {
 
@@ -36,27 +43,56 @@ public class FileParser {
 
             while (input.ready() && noError) {
 
-                int ch = input.read();
+                if (creatingVars) {
 
-                if (ch == 13) { // Carriage Return
+                    currentWord.append(input.readLine());
 
-                    gui.addText("[CR]");
+                    if (currentWord.toString().equals("")) {
 
-                } else if (ch == 10) { // Line Feed
+                        creatingVars = false;
+                        gui.addText("----- END VARIABLE DECLARATION, BEGIN PROCESSING -----\n");
 
-                    gui.addText("[LF]\n");
+                    } else {
 
-                } else if (ch == 32) { // Space
+                        gui.addText(currentWord.toString() + "\n");
+                        String[] split = currentWord.toString().replace(";", "").split("=");
 
-                    gui.addText("[ ]");
+                        if (split[0].trim().charAt(0) < 97 || split[0].trim().charAt(0) > 122) {
+
+                            gui.addText("Invalid Identifier: " + split[0] + "\n");
+                            noError = false;
+
+                        } else {
+
+                            varList.put(split[0].trim(), Double.parseDouble(split[1].trim()));
+                            currentWord = new StringBuilder();
+                        }
+                    }
 
                 } else {
 
-                    gui.addText((char) ch);
-                    parseCharacter(ch);
-                }
+                    int ch = input.read();
 
-                i++;
+                    if (ch == 13) { // Carriage Return
+
+                        gui.addText("[CR]");
+
+                    } else if (ch == 10) { // Line Feed
+
+                        gui.addText("[LF]\n");
+
+                    } else if (ch == 32) { // Space
+
+                        gui.addText("[ ]");
+
+                    } else {
+
+                        gui.addText((char) ch);
+                        parseCharacter(ch);
+                    }
+
+                    i++;
+                }
             }
 
             input.close();
@@ -83,35 +119,25 @@ public class FileParser {
         currentWord.append((char) ch);
         int opCode = st.transition("" + (char) ch);
 
-        if (opCode == 1) {
+        if (opCode == 2) {
 
-            name = currentWord.toString().replace('=', ' ').trim();
+            String temp = currentWord.toString();
+            currVar = currentWord.toString().trim().substring(0, temp.length() - 1);
             currentWord = new StringBuilder();
 
         } else if (opCode == 5) {
 
-            value = Double.parseDouble(currentWord.toString().replace(';', ' ').trim());
-            varList.put(name, value);
-
+            String temp = currentWord.toString();
+            values.push(temp.substring(0, temp.length() - 1));
             currentWord = new StringBuilder();
 
-        } else if (opCode == 10) {
+            processLine();
 
-            ArrayList<String> values = new ArrayList<>();
-            values.addAll(Arrays.asList(currentWord.toString().replace(';', ' ').trim().split("[+\\-/*]")));
+        } else if (opCode == 7) {
 
-            ArrayList<String> ops = new ArrayList<>();
-            ops.addAll(Arrays.asList(currentWord.toString().replace(';', ' ').trim().split("\\w")));
-
-            /*
-            for (int i = 0; i < ops.size(); i++) {
-
-                if (ops.get(i).charAt(0) == '*'){
-
-
-                }
-            }
-            */
+            String temp = currentWord.toString();
+            ops.push("" + temp.charAt(temp.length() - 1));
+            values.push(temp.substring(0, temp.length() - 1));
             currentWord = new StringBuilder();
 
         } else if (opCode == -1) {
@@ -121,5 +147,10 @@ public class FileParser {
             gui.addText("INVALID ATTRIBUTION\n\n");
             currentWord = new StringBuilder();
         }
+    }
+
+    void processLine() {
+
+        // Algoritmo das duas pilhas de Djikstra
     }
 }

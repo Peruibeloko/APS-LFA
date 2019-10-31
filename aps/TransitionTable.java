@@ -12,7 +12,15 @@ public class TransitionTable {
     public int change(int state, String input) {
 
         String key = state + "|" + input;
-        return matrix.get(key);
+
+        try {
+
+            return matrix.get(key);
+
+        } catch (NullPointerException e) {
+
+            return -1;
+        }
     }
 
     public void createTransition(int prevState, String input, int newState) {
