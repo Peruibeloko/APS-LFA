@@ -15,7 +15,7 @@ public class FileParser {
     private BufferedReader input = null;
     private Output gui;
 
-    Stack<String> values = new Stack<>();
+    LinkedList<String> exp = new LinkedList<>();
     Stack<String> ops = new Stack<>();
     String currVar;
 
@@ -128,7 +128,11 @@ public class FileParser {
         } else if (opCode == 5) {
 
             String temp = currentWord.toString();
-            values.push(temp.substring(0, temp.length() - 1));
+            exp.add(temp.substring(0, temp.length() - 1));
+
+            while (!ops.isEmpty())
+                exp.add(ops.pop());
+
             currentWord = new StringBuilder();
 
             processLine();
@@ -136,8 +140,12 @@ public class FileParser {
         } else if (opCode == 7) {
 
             String temp = currentWord.toString();
+            exp.add(temp.substring(0, temp.length() - 1));
+
+            while (!ops.empty() && precedence((char) ch) <= precedence(ops.peek().charAt(0)))
+                exp.add(ops.pop());
+
             ops.push("" + temp.charAt(temp.length() - 1));
-            values.push(temp.substring(0, temp.length() - 1));
             currentWord = new StringBuilder();
 
         } else if (opCode == -1) {
@@ -151,6 +159,72 @@ public class FileParser {
 
     void processLine() {
 
-        // Algoritmo das duas pilhas de Djikstra
+        int i = 0;
+        while (exp.size() > 1) {
+
+            if (exp.get(i).matches("[+\\-/*]")) {
+
+                double a, b;
+                String tok1 = exp.get(i - 2);
+                String tok2 = exp.get(i - 1);
+
+                if (tok1.charAt(0) >= 97 && tok1.charAt(0) <= 122)
+                    a = varList.get(tok1);
+                else
+                    a = Double.parseDouble(tok1);
+
+                if (tok2.charAt(0) >= 97 && tok2.charAt(0) <= 122)
+                    b = varList.get(tok2);
+                else
+                    b = Double.parseDouble(tok2);
+
+                char op = exp.get(i).charAt(0);
+
+                try {
+
+                    exp.set(i, String.valueOf(applyOp(a, b, op)));
+                    exp.remove(i - 2);
+                    exp.remove(i - 2);
+                    i = 0;
+
+                } catch (Exception e) {
+
+                    noError = false;
+                    gui.addText("\nCurrent Capture: " + currentWord.toString() + '\n');
+                    gui.addText("INVALID ATTRIBUTION\n\n");
+                }
+
+            } else {
+                i++;
+            }
+        }
+
+        varList.replace(currVar, Double.parseDouble(exp.pop()));
+    }
+
+    int precedence(char op) {
+        if (op == '+' || op == '-')
+            return 1;
+        if (op == '*' || op == '/')
+            return 2;
+        return 0;
+    }
+
+    double applyOp(double a, double b, char op) throws Exception {
+        switch (op) {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                if (b == 0)
+                    throw new Exception();
+                else
+                    return a / b;
+            default:
+                throw new Exception();
+        }
     }
 }
