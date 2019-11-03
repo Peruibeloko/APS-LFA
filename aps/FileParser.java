@@ -123,6 +123,13 @@ public class FileParser {
 
             String temp = currentWord.toString();
             currVar = currentWord.toString().trim().substring(0, temp.length() - 1);
+            try {
+                varList.get(currVar).toString();
+            } catch (Exception e){
+                noError = false;
+                gui.addText("\nNon existent variable: " + currVar + '\n');
+                gui.addText("INVALID ATTRIBUTION\n\n");
+            }
             currentWord = new StringBuilder();
 
         } else if (opCode == 5) {
@@ -168,14 +175,28 @@ public class FileParser {
                 String tok1 = exp.get(i - 2);
                 String tok2 = exp.get(i - 1);
 
-                if (tok1.charAt(0) >= 97 && tok1.charAt(0) <= 122)
+                if (tok1.charAt(0) >= 97 && tok1.charAt(0) <= 122) {
                     a = varList.get(tok1);
-                else
+                    try {
+                        a += 0;
+                    } catch (Exception e){
+                        noError = false;
+                        gui.addText("\nNon existent variable: " + tok1 + '\n');
+                        gui.addText("INVALID ATTRIBUTION\n\n");
+                    }
+                } else
                     a = Double.parseDouble(tok1);
 
-                if (tok2.charAt(0) >= 97 && tok2.charAt(0) <= 122)
+                if (tok2.charAt(0) >= 97 && tok2.charAt(0) <= 122) {
                     b = varList.get(tok2);
-                else
+                    try {
+                        b += 0;
+                    } catch (Exception e){
+                        noError = false;
+                        gui.addText("\nNon existent variable: " + tok2 + '\n');
+                        gui.addText("INVALID ATTRIBUTION\n\n");
+                    }
+                } else
                     b = Double.parseDouble(tok2);
 
                 char op = exp.get(i).charAt(0);
