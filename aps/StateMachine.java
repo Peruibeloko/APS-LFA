@@ -23,26 +23,23 @@ public class StateMachine {
         states.createTransition(1, num, 1);
         states.createTransition(1, op_atrib, 2);
 
-        states.createTransition(2, num, 3);
-        states.createTransition(2, letMin, 4);
+        states.createTransition(2, letMin, 3);
+        states.createTransition(2, num, 4);
 
+        states.createTransition(3, letMin, 3);
         states.createTransition(3, num, 3);
-        states.createTransition(3, dot, 6);
-        states.createTransition(3, op_arit, 7);
-        states.createTransition(3, pv, 5);
+        states.createTransition(3, under, 3);
+        states.createTransition(3, op_arit, 2);
+        states.createTransition(3, pv, 6);
 
-        states.createTransition(4, letMin, 4);
         states.createTransition(4, num, 4);
-        states.createTransition(4, under, 4);
-        states.createTransition(4, op_arit, 7);
-        states.createTransition(4, pv, 5);
+        states.createTransition(4, dot, 5);
+        states.createTransition(4, op_arit, 2);
+        states.createTransition(4, pv, 6);
 
-        states.createTransition(6, num, 6);
-        states.createTransition(6, op_arit, 7);
-        states.createTransition(6, pv, 5);
-
-        states.createTransition(7, num, 3);
-        states.createTransition(7, letMin, 4);
+        states.createTransition(5, num, 5);
+        states.createTransition(5, op_arit, 2);
+        states.createTransition(5, pv, 6);
     }
 
     public int transition(String input) {
@@ -83,10 +80,10 @@ public class StateMachine {
 
             activeState += 0;
 
-            if (activeState == 5){
+            if (activeState == 6){
 
                 activeState = 0;
-                return 5;
+                return 6;
 
             } else {
 

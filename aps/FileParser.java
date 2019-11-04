@@ -17,7 +17,7 @@ public class FileParser {
 
     LinkedList<String> exp = new LinkedList<>();
     Stack<String> ops = new Stack<>();
-    String currVar;
+    String currVar = "";
 
     private Map<String, Double> varList = new HashMap<>();
     private Entry<String, Double> en;
@@ -122,17 +122,31 @@ public class FileParser {
         if (opCode == 2) {
 
             String temp = currentWord.toString();
-            currVar = currentWord.toString().trim().substring(0, temp.length() - 1);
-            try {
-                varList.get(currVar).toString();
-            } catch (Exception e){
-                noError = false;
-                gui.addText("\nNon existent variable: " + currVar + '\n');
-                gui.addText("INVALID ATTRIBUTION\n\n");
+
+            if (currVar.equals("")) {
+
+                currVar = temp.trim().substring(0, temp.length() - 1);
+
+                try { varList.get(currVar).toString(); } catch (Exception f) {
+
+                    noError = false;
+                    gui.addText("\nNon existent variable: " + currVar + '\n');
+                    gui.addText("INVALID ATTRIBUTION\n\n");
+                }
+
+            } else {
+
+                exp.add(temp.substring(0, temp.length() - 1));
+
+                while (!ops.empty() && precedence((char) ch) <= precedence(ops.peek().charAt(0)))
+                    exp.add(ops.pop());
+
+                ops.push("" + temp.charAt(temp.length() - 1));
             }
+
             currentWord = new StringBuilder();
 
-        } else if (opCode == 5) {
+        } else if (opCode == 6) {
 
             String temp = currentWord.toString();
             exp.add(temp.substring(0, temp.length() - 1));
@@ -141,19 +155,8 @@ public class FileParser {
                 exp.add(ops.pop());
 
             currentWord = new StringBuilder();
-
             processLine();
-
-        } else if (opCode == 7) {
-
-            String temp = currentWord.toString();
-            exp.add(temp.substring(0, temp.length() - 1));
-
-            while (!ops.empty() && precedence((char) ch) <= precedence(ops.peek().charAt(0)))
-                exp.add(ops.pop());
-
-            ops.push("" + temp.charAt(temp.length() - 1));
-            currentWord = new StringBuilder();
+            currVar = "";
 
         } else if (opCode == -1) {
 
