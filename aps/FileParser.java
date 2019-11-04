@@ -2,9 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.Map;
-import java.util.Iterator;
 
 public class FileParser {
 
@@ -19,9 +16,7 @@ public class FileParser {
     Stack<String> ops = new Stack<>();
     String currVar = "";
 
-    private Map<String, Double> varList = new HashMap<>();
-    private Entry<String, Double> en;
-    private Iterator it;
+    private HashMap<String, Double> varList = new HashMap<>();
 
     private boolean noError = true;
     private boolean creatingVars = true;
@@ -39,7 +34,7 @@ public class FileParser {
         try {
 
             input = new BufferedReader(new FileReader(filename));
-            gui.addText("\n\n----- BEGIN FILE READ -----\n\n");
+            gui.addText("----- BEGIN FILE READ -----\n\n");
 
             while (input.ready() && noError) {
 
@@ -50,7 +45,7 @@ public class FileParser {
                     if (currentWord.toString().equals("")) {
 
                         creatingVars = false;
-                        gui.addText("----- END VARIABLE DECLARATION, BEGIN PROCESSING -----\n");
+                        gui.addText("\n----- END VARIABLE DECLARATION, BEGIN PROCESSING -----\n\n");
 
                     } else {
 
@@ -105,12 +100,15 @@ public class FileParser {
         gui.addText("Characters read: " + i + "\n");
         gui.addText("Variables: " + varList.size() + "\n\n");
 
-        it = varList.entrySet().iterator();
+        Object[] keyList = varList.keySet().toArray();
+        for (int j = 0; j < keyList.length; j++) {
 
-        while (it.hasNext()) {
+            Double val = varList.get(keyList[j].toString());
 
-            en = (Entry) it.next();
-            gui.addText(en.getKey() + ": " + en.getValue() + "\n");
+            if (val % 1 != 0)
+                gui.addText(keyList[j].toString() + ": " + val + "\n");
+            else
+                gui.addText(keyList[j].toString() + ": " + val.intValue() + "\n");
         }
     }
 
@@ -121,22 +119,31 @@ public class FileParser {
 
         if (opCode == 2) {
 
-            String temp = currentWord.toString();
+            String temp = currentWord.toString().trim();
 
             if (currVar.equals("")) {
 
-                currVar = temp.trim().substring(0, temp.length() - 1);
+                currVar = temp.substring(0, temp.length() - 1);
 
-                try { varList.get(currVar).toString(); } catch (Exception f) {
+                try {
+                    varList.get(currVar).toString();
+                } catch (Exception f) {
 
                     noError = false;
-                    gui.addText("\nNon existent variable: " + currVar + '\n');
-                    gui.addText("INVALID ATTRIBUTION\n\n");
+                    gui.addText("\nNon existent variable: " + currVar + "\nINVALID ATTRIBUTION");
                 }
 
             } else {
+                String temp2 = temp.substring(0, temp.length() - 1);
+                exp.add(temp2);
 
-                exp.add(temp.substring(0, temp.length() - 1));
+                if (temp2.charAt(0) >= 97 && temp2.charAt(0) <= 122)
+                    try {
+                        varList.get(temp2).doubleValue();
+                    } catch (Exception e) {
+                        noError = false;
+                        gui.addText("\nNon existent variable: " + temp2 + "\nINVALID ATTRIBUTION");
+                    }
 
                 while (!ops.empty() && precedence((char) ch) <= precedence(ops.peek().charAt(0)))
                     exp.add(ops.pop());
@@ -148,7 +155,7 @@ public class FileParser {
 
         } else if (opCode == 6) {
 
-            String temp = currentWord.toString();
+            String temp = currentWord.toString().trim();
             exp.add(temp.substring(0, temp.length() - 1));
 
             while (!ops.isEmpty())
@@ -161,8 +168,7 @@ public class FileParser {
         } else if (opCode == -1) {
 
             noError = false;
-            gui.addText("\nCurrent Capture: " + currentWord.toString() + '\n');
-            gui.addText("INVALID ATTRIBUTION\n\n");
+            gui.addText("\nCurrent Capture: " + currentWord.toString() + "\nINVALID ATTRIBUTION");
             currentWord = new StringBuilder();
         }
     }
@@ -178,28 +184,14 @@ public class FileParser {
                 String tok1 = exp.get(i - 2);
                 String tok2 = exp.get(i - 1);
 
-                if (tok1.charAt(0) >= 97 && tok1.charAt(0) <= 122) {
+                if (tok1.charAt(0) >= 97 && tok1.charAt(0) <= 122)
                     a = varList.get(tok1);
-                    try {
-                        a += 0;
-                    } catch (Exception e){
-                        noError = false;
-                        gui.addText("\nNon existent variable: " + tok1 + '\n');
-                        gui.addText("INVALID ATTRIBUTION\n\n");
-                    }
-                } else
+                else
                     a = Double.parseDouble(tok1);
 
-                if (tok2.charAt(0) >= 97 && tok2.charAt(0) <= 122) {
+                if (tok2.charAt(0) >= 97 && tok2.charAt(0) <= 122)
                     b = varList.get(tok2);
-                    try {
-                        b += 0;
-                    } catch (Exception e){
-                        noError = false;
-                        gui.addText("\nNon existent variable: " + tok2 + '\n');
-                        gui.addText("INVALID ATTRIBUTION\n\n");
-                    }
-                } else
+                else
                     b = Double.parseDouble(tok2);
 
                 char op = exp.get(i).charAt(0);
@@ -207,15 +199,15 @@ public class FileParser {
                 try {
 
                     exp.set(i, String.valueOf(applyOp(a, b, op)));
-                    exp.remove(i - 2);
-                    exp.remove(i - 2);
+                    i -= 2;
+                    exp.remove(i);
+                    exp.remove(i);
                     i = 0;
 
                 } catch (Exception e) {
 
                     noError = false;
-                    gui.addText("\nCurrent Capture: " + currentWord.toString() + '\n');
-                    gui.addText("INVALID ATTRIBUTION\n\n");
+                    gui.addText("\nCurrent Capture: " + currentWord.toString() + "\nINVALID ATTRIBUTION");
                 }
 
             } else {

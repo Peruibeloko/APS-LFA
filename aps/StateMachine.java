@@ -47,54 +47,37 @@ public class StateMachine {
 
         if (input.matches(letMin)) {
 
-            System.out.printf("δ(%d, %s)\n", activeState, letMin);
             activeState = states.change(activeState, letMin);
 
         } else if (input.matches(num)) {
 
-            System.out.printf("δ(%d, %s)\n", activeState, num);
             activeState = states.change(activeState, num);
 
         } else if (input.matches(op_arit)) {
 
-            System.out.printf("δ(%d, %s)\n", activeState, op_arit);
             activeState = states.change(activeState, op_arit);
 
         } else if (input.matches(op_atrib)) {
 
-            System.out.printf("δ(%d, %s)\n", activeState, op_atrib);
             activeState = states.change(activeState, op_atrib);
 
         } else if (input.matches(pv)) {
 
-            System.out.printf("δ(%d, %s)\n", activeState, pv);
             activeState = states.change(activeState, pv);
 
         } else if (input.matches(dot)) {
 
-            System.out.printf("δ(%d, %s)\n", activeState, dot);
             activeState = states.change(activeState, dot);
         }
 
-        try {
+        if (activeState == 6) {
 
-            activeState += 0;
+            activeState = 0;
+            return 6;
 
-            if (activeState == 6){
+        } else {
 
-                activeState = 0;
-                return 6;
-
-            } else {
-
-                return activeState;
-            }
-
-        } catch (NullPointerException e){
-
-            activeState = -1;
             return activeState;
         }
-
     }
 }

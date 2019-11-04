@@ -15,9 +15,13 @@ public class TransitionTable {
 
         try {
 
-            return matrix.get(key);
+            int out = matrix.get(key);
+            out += 0;
+            System.out.printf("δ(%d, %s) → %d\n", state, input, out);
 
-        } catch (NullPointerException e) {
+            return out;
+
+        } catch (Exception e) {
 
             return -1;
         }
